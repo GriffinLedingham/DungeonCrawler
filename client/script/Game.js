@@ -42,7 +42,7 @@ var trapped = false;
 var beacon;
 
 function create() {
-    socket = io.connect('http://dungeoncrawler.herokuapp.com:8142');
+    socket = io.connect('http://dungeoncrawler.herokuapp.com');
 
     players = {};
 
