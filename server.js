@@ -8,7 +8,7 @@ app.configure(function(){
 });
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
-server.listen(8080);
+server.listen(80);
 io.set('log level', 0);
 
 var players = [];
