@@ -53,6 +53,7 @@ io.sockets.on('connection', function (socket) {
       typeCount++;
 
       socket.uuid = player_data.uuid;
+      socket.nick = socket.uuid;
 
       players.push({uuid:player_data.uuid, type:socket.playerType});
 
