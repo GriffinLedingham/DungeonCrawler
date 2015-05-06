@@ -61,6 +61,7 @@ function create() {
         var keycode = (event.keyCode ? event.keyCode : event.which);
         if(keycode == '13'){
             socket.emit('chat_msg', $('#chat_in').val());
+            $('#chat_in').val('');
         }
     });
 
