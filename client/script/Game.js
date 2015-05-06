@@ -54,6 +54,7 @@ function create() {
         var msg = data.msg;
         var uid = data.uuid;
         $('#messages').append('<div style="color:white;">'+uid + ': ' + msg+'</div>');
+        $("#messages").scrollTop($("#messages")[0].scrollHeight);
     });
 
     $('#chat_in').keypress(function(event){

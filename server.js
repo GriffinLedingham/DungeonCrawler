@@ -27,9 +27,17 @@ io.sockets.on('connection', function (socket) {
     console.log('joined');
     socket.uuid = null;
     socket.playerType = null;
+    socket.nick = socket.uuid;
 
     socket.on('chat_msg',function(msg){
-      io.sockets.emit('chat_msg', {msg:msg, uuid:socket.uuid});
+      if(msg.indexOf('/nick') > -1)
+      {
+        socket.nick = msg.split('/nick ')[1];
+      }
+      else
+      {
+        io.sockets.emit('chat_msg', {msg:msg, uuid:socket.nick});
+      }
     });
 
     socket.on('new_player',function(player_data){
