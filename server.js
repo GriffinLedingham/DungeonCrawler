@@ -1,5 +1,6 @@
 var http = require('http');
 var express = require('express');
+var Dungeon = require('./dungeon');
 var app = express();
 var path    = require('path');
 app.use(express.static(path.join(__dirname, 'client')));
@@ -14,6 +15,13 @@ io.set('log level', 0);
 var players = [];
 
 var typeCount = 2;
+var map_size = 50;
+
+Dungeon.generate(map_size);
+var map = Dungeon.getMap();
+var rooms = Dungeon.getRooms();
+var stats = Dungeon.getStats();
+Dungeon.print();
 
 io.sockets.on('connection', function (socket) {
     console.log('joined');
@@ -36,7 +44,7 @@ io.sockets.on('connection', function (socket) {
 
       players.push({uuid:player_data.uuid, type:socket.playerType});
 
-      socket.emit('join_game', socket.playerType);
+      socket.emit('join_game', {size: map_size,map:map, rooms:rooms, stats:stats, player_type: socket.playerType});
 
       socket.emit('sync_players',players);
 

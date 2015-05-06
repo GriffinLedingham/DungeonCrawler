@@ -4,16 +4,13 @@ winH = window.innerHeight;
 var game = new Phaser.Game(winW, winH, Phaser.AUTO, 'sheep-tag', { preload: preload, create: create, update: update, render:render });
 
 function preload() {
-    game.load.tilemap('level', 'data/Level1.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.image('tiles', 'assets/tiles.png');
+    //game.load.tilemap('level', 'data/Level1.json', null, Phaser.Tilemap.TILED_JSON);
+    // game.load.image('tiles', 'assets/tiles.png');
+    game.load.image('tiles', 'assets/tiles_4_betterGrass.png');
     game.load.image('player', 'assets/player.png');
     game.load.image('wolf', 'assets/wolf.png');
     game.load.image('beacon', 'assets/beacon.png');
 }
-
-var spawns = [
-    {x:4,y:21},{x:33,y:16},{x:57,y:29},{x:53,y:46},{x:11,y:57},{x:32,y:2}
-];
 
 var tileLength = 32;
 var map;
@@ -33,41 +30,24 @@ var moveArray = [];
 var moveIndex = 0;
 var masterGrid;
 var uuid;
-var players;
+var players = {};
 var socket;
 var playerType;
 var authed = false;
 var trapped = false;
+var tileSpriteMap = [];
 
 var beacon;
 
+var map_data = {};
+
 function create() {
     socket = io.connect('http://dungeoncrawler.herokuapp.com');
-
-    players = {};
-
     uuid = guid();
-
-    line = new Phaser.Line();
-
-
-    game.stage.backgroundColor = '#787878';
-    map = game.add.tilemap('level');
-    map.addTilesetImage('tiles', 'tiles');
-    layer = map.createLayer('Tile Layer 1');
-    layer2 = map.createLayer('Tile Layer 2');
-    hitLayer = map.createLayer('Hit Layer');
-
-    height = layer.layer.height;
-    width = layer.layer.width;
-    layer.resizeWorld();
-
-
-
     socket.emit('new_player', {uuid:uuid});
 
-    socket.on('join_game',function(type){
-        startGame(type);
+    socket.on('join_game',function(data){
+        startGame(data);
     });
 
     socket.on('player_join',function(player_data){
@@ -86,6 +66,7 @@ function create() {
     });
 
     socket.on('player_move',function(player_data){
+        console.log(players);
         if(typeof players[player_data.uuid] !== 'undefined')
         {
             players[player_data.uuid].x = player_data.x;
@@ -137,24 +118,64 @@ function create() {
 
 }
 
-function startGame(type){
+function startGame(data_obj){
+    var type = data_obj['player_type'];
+
+    line = new Phaser.Line();
+
+    map = game.add.tilemap();
+    map.addTilesetImage('tiles');
+
+    layer = map.create('layer',data_obj.size,data_obj.size,32,32);
+    layer.resizeWorld();
+
+    map.setCollision([
+            tileLibrary.blank,
+            tileLibrary.wallface,tileLibrary.wallface_e,tileLibrary.wallface_w, tileLibrary.wallface_cntr,
+            tileLibrary.walltop,tileLibrary.walltop_e,tileLibrary.walltop_w, tileLibrary.walltop_cntr]);
+
+    map_data = {map:data_obj.map, rooms:data_obj.rooms, stats: data_obj.stats};
+
+    tileSpriteMap = tileMapTranslate(map_data.map);
+    for (var i=0; i<data_obj.size; i++) {
+        for(var j=0; j<data_obj.size; j++) {
+            map.putTile(tileSpriteMap[i][j], i, j, layer);
+        }
+    }
+
+    // game.stage.backgroundColor = '#787878';
+    // map = game.add.tilemap('level');
+    // layer = map.createLayer('Tile Layer 1');
+    // layer2 = map.createLayer('Tile Layer 2');
+    //hitLayer = map.createLayer('Hit Layer');
+//console.log(hitLayer);
+    height = data_obj.size;
+    width = data_obj.size;
+    //layer.resizeWorld();
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     playerType = type;
 
-    var random = Math.floor(Math.random() * (spawns.length-1 - 0 + 1)) + 0;
 
-        var spawn = spawns[random];
+
+    // var random = Math.floor(Math.random() * (spawns.length-1 - 0 + 1)) + 0;
+
+    //     var spawn = spawns[random];
 
     if(playerType === 'wolf')
     {
-        p = game.add.sprite(spawn.x*32,spawn.y*32, 'wolf');
+        p = game.add.sprite(map_data.rooms[0].center.x*32, map_data.rooms[0].center.y*32, 'wolf');
     }
     else
     {
-        p = game.add.sprite(spawn.x*32,spawn.y*32, 'player');
+        p = game.add.sprite(map_data.rooms[0].center.x*32, map_data.rooms[0].center.y*32, 'player');
     }
+
+
+
+
+
     game.physics.enable(p, Phaser.Physics.ARCADE);
     p.body.collideWorldBounds = true;
     p.anchor.setTo(0.5, 1);
@@ -167,22 +188,22 @@ function startGame(type){
     );
     masterGrid = new PF.Grid(width,height);
 
-    var hitLayerArray = hitLayer.layer.data;
-    console.log(hitLayerArray);
+    //var hitLayerArray = hitLayer.layer.data;
+    console.log(map_data.map);
     console.log(masterGrid);
-    for(var i in hitLayerArray)
+    for(var i in map_data.map)
     {
-        for(var j in hitLayerArray[i])
+        for(var j in map_data.map[i])
         {
-            if(hitLayerArray[i][j].index !== -1)
+            if(map_data.map[j][i] == 0)
             {
                 masterGrid.nodes[i][j].walkable = false;
             }
         }
     }
 
-    beacon = game.add.sprite(23*32,23*32, 'beacon');
-    game.physics.enable(beacon, Phaser.Physics.ARCADE);
+    // beacon = game.add.sprite(23*32,23*32, 'beacon');
+    // game.physics.enable(beacon, Phaser.Physics.ARCADE);
 
     authed = true;
 }
@@ -198,42 +219,42 @@ function update() {
     for(var i in players)
     {
         game.physics.arcade.collide(p,players[i], function(you, them){
-            movePlayer();
-            you.body.velocity.x = 0;
-            you.body.velocity.y = 0;
-            them.body.velocity.x = 0;
-            them.body.velocity.y = 0;
-            if(them.playerType === 'wolf' && playerType === 'sheep')
-            {
-                console.log('TRAPPED TRUE')
-                trapped = true;
+            // movePlayer();
+            // you.body.velocity.x = 0;
+            // you.body.velocity.y = 0;
+            // them.body.velocity.x = 0;
+            // them.body.velocity.y = 0;
+            // if(them.playerType === 'wolf' && playerType === 'sheep')
+            // {
+            //     console.log('TRAPPED TRUE')
+            //     trapped = true;
 
-                you.body.x = 22*32;
-                you.body.y = 28*32;
-                console.log('dead');
-            }
+            //     you.body.x = 22*32;
+            //     you.body.y = 28*32;
+            //     console.log('dead');
+            // }
 
         });
 
         if(Phaser.Rectangle.intersects(p.body, players[i].body))
         {
-            if(players[i].playerType === 'wolf' && playerType === 'sheep')
-            {
+            // if(players[i].playerType === 'wolf' && playerType === 'sheep')
+            // {
 
-                console.log('TRAPPED TRUE');
-                trapped = true;
+            //     console.log('TRAPPED TRUE');
+            //     trapped = true;
 
-                p.body.x = 22*32;
-                p.body.y = 28*32;
-                console.log('dead');
-            }
+            //     p.body.x = 22*32;
+            //     p.body.y = 28*32;
+            //     console.log('dead');
+            // }
         }
     }
 
-    if(Phaser.Rectangle.intersects(p.body, beacon.body))
-    {
-        socket.emit('free_all');
-    }
+    // if(Phaser.Rectangle.intersects(p.body, beacon.body))
+    // {
+    //     socket.emit('free_all');
+    // }
 
     var player_data = {x:p.world.x, y:p.world.y, uuid: uuid, velX: p.body.velocity.x, velY: p.body.velocity.y};
     socket.emit('move_player', player_data);
