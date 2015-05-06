@@ -101,8 +101,6 @@ function create() {
     });
 
     socket.on('free',function(){
-        console.log('FREE');
-        console.log(trapped);
         if(trapped === true){
             var random = Math.floor(Math.random() * (spawns.length-1 - 0 + 1)) + 0;
 
@@ -110,7 +108,6 @@ function create() {
                 p.x = spawn.x*32;
                 p.y = spawn.y*32;
 
-                console.log('TRAPPED SET FALSE');
                 trapped = false;
         }
     });
@@ -162,8 +159,6 @@ function startGame(data_obj){
     );
     masterGrid = new PF.Grid(width,height);
 
-    console.log(map_data.map);
-    console.log(masterGrid);
     for(var i in map_data.map)
     {
         for(var j in map_data.map[i])
@@ -268,7 +263,6 @@ function clickTile(pointer) {
     }
     line.start.set(pointer.worldX, pointer.worldY);
     plotting = true;
-    console.log(raycast(pointer));
 }
 
 function raycast(pointer) {
@@ -279,7 +273,7 @@ function raycast(pointer) {
         //  Just so we can visually see the tiles
         for (var i = 0; i < tileHits.length; i++)
         {
-            tileHits[i].debug = true;
+            //tileHits[i].debug = true;
         }
         layer.dirty = true;
     }
