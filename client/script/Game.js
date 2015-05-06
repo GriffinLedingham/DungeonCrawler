@@ -81,7 +81,6 @@ function create() {
     });
 
     socket.on('player_move',function(player_data){
-        console.log(players);
         if(typeof players[player_data.uuid] !== 'undefined')
         {
             players[player_data.uuid].x = player_data.x;
