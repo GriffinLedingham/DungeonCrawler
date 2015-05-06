@@ -4,8 +4,6 @@ winH = window.innerHeight;
 var game = new Phaser.Game(winW, winH, Phaser.AUTO, 'sheep-tag', { preload: preload, create: create, update: update, render:render });
 
 function preload() {
-    //game.load.tilemap('level', 'data/Level1.json', null, Phaser.Tilemap.TILED_JSON);
-    // game.load.image('tiles', 'assets/tiles.png');
     game.load.image('tiles', 'assets/tiles_4_betterGrass.png');
     game.load.image('player', 'assets/player.png');
     game.load.image('wolf', 'assets/wolf.png');
@@ -42,6 +40,7 @@ var beacon;
 var map_data = {};
 
 function create() {
+    // socket = io.connect('http://localhost:3000');
     socket = io.connect('http://dungeoncrawler.herokuapp.com');
     uuid = guid();
     socket.emit('new_player', {uuid:uuid});
@@ -50,6 +49,7 @@ function create() {
         startGame(data);
     });
 
+    //5 min start to finish chat client
     socket.on('chat_msg',function(data){
         var msg = data.msg;
         var uid = data.uuid;
@@ -66,15 +66,7 @@ function create() {
     });
 
     socket.on('player_join',function(player_data){
-        console.log('hi');
-        if(player_data.type === 'wolf')
-        {
-            players[player_data.uuid] = game.add.sprite(23,32, 'wolf');
-        }
-        else
-        {
-            players[player_data.uuid] = game.add.sprite(23,32, 'player');
-        }
+        players[player_data.uuid] = game.add.sprite(23,32, 'player');
         players[player_data.uuid].playerType = player_data.type;
         game.physics.enable(players[player_data.uuid],  Phaser.Physics.ARCADE);
         players[player_data.uuid].anchor.setTo(0.5, 1);
@@ -95,14 +87,7 @@ function create() {
         {
             if(list[i].uuid !== uuid)
             {
-                if(list[i].type === 'wolf')
-                {
-                    players[list[i].uuid] = game.add.sprite(23,32, 'wolf');
-                }
-                else
-                {
-                    players[list[i].uuid] = game.add.sprite(23,32, 'player');
-                }
+                players[list[i].uuid] = game.add.sprite(23,32, 'player');
                 players[list[i].uuid].playerType = list[i].type;
                 game.physics.enable(players[list[i].uuid],  Phaser.Physics.ARCADE);
                 players[list[i].uuid].anchor.setTo(0.5, 1);
@@ -157,38 +142,12 @@ function startGame(data_obj){
         }
     }
 
-    // game.stage.backgroundColor = '#787878';
-    // map = game.add.tilemap('level');
-    // layer = map.createLayer('Tile Layer 1');
-    // layer2 = map.createLayer('Tile Layer 2');
-    //hitLayer = map.createLayer('Hit Layer');
-//console.log(hitLayer);
     height = data_obj.size;
     width = data_obj.size;
-    //layer.resizeWorld();
-
     game.physics.startSystem(Phaser.Physics.ARCADE);
-
     playerType = type;
 
-
-
-    // var random = Math.floor(Math.random() * (spawns.length-1 - 0 + 1)) + 0;
-
-    //     var spawn = spawns[random];
-
-    if(playerType === 'wolf')
-    {
-        p = game.add.sprite(map_data.rooms[0].center.x*32, map_data.rooms[0].center.y*32, 'wolf');
-    }
-    else
-    {
-        p = game.add.sprite(map_data.rooms[0].center.x*32, map_data.rooms[0].center.y*32, 'player');
-    }
-
-
-
-
+    p = game.add.sprite(map_data.rooms[0].center.x*32, map_data.rooms[0].center.y*32, 'player');
 
     game.physics.enable(p, Phaser.Physics.ARCADE);
     p.body.collideWorldBounds = true;
@@ -203,7 +162,6 @@ function startGame(data_obj){
     );
     masterGrid = new PF.Grid(width,height);
 
-    //var hitLayerArray = hitLayer.layer.data;
     console.log(map_data.map);
     console.log(masterGrid);
     for(var i in map_data.map)
@@ -216,9 +174,6 @@ function startGame(data_obj){
             }
         }
     }
-
-    // beacon = game.add.sprite(23*32,23*32, 'beacon');
-    // game.physics.enable(beacon, Phaser.Physics.ARCADE);
 
     authed = true;
 }
@@ -234,42 +189,14 @@ function update() {
     for(var i in players)
     {
         game.physics.arcade.collide(p,players[i], function(you, them){
-            // movePlayer();
-            // you.body.velocity.x = 0;
-            // you.body.velocity.y = 0;
-            // them.body.velocity.x = 0;
-            // them.body.velocity.y = 0;
-            // if(them.playerType === 'wolf' && playerType === 'sheep')
-            // {
-            //     console.log('TRAPPED TRUE')
-            //     trapped = true;
-
-            //     you.body.x = 22*32;
-            //     you.body.y = 28*32;
-            //     console.log('dead');
-            // }
-
+            //player physics collision block
         });
 
         if(Phaser.Rectangle.intersects(p.body, players[i].body))
         {
-            // if(players[i].playerType === 'wolf' && playerType === 'sheep')
-            // {
-
-            //     console.log('TRAPPED TRUE');
-            //     trapped = true;
-
-            //     p.body.x = 22*32;
-            //     p.body.y = 28*32;
-            //     console.log('dead');
-            // }
+            //player intersect physics object
         }
     }
-
-    // if(Phaser.Rectangle.intersects(p.body, beacon.body))
-    // {
-    //     socket.emit('free_all');
-    // }
 
     var player_data = {x:p.world.x, y:p.world.y, uuid: uuid, velX: p.body.velocity.x, velY: p.body.velocity.y};
     socket.emit('move_player', player_data);

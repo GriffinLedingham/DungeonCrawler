@@ -10,6 +10,7 @@ app.configure(function(){
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 server.listen(process.env.PORT);
+// server.listen(3000);
 io.set('log level', 0);
 
 var players = [];
@@ -24,11 +25,11 @@ var stats = Dungeon.getStats();
 Dungeon.print();
 
 io.sockets.on('connection', function (socket) {
-    console.log('joined');
     socket.uuid = null;
     socket.playerType = null;
     socket.nick = socket.uuid;
 
+    //5 min start to finish chat client
     socket.on('chat_msg',function(msg){
       if(msg.indexOf('/nick') > -1)
       {
