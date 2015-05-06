@@ -15,7 +15,7 @@ io.set('log level', 0);
 var players = [];
 
 var typeCount = 2;
-var map_size = 100;
+var map_size = 20;
 
 Dungeon.generate(map_size);
 var map = Dungeon.getMap();
