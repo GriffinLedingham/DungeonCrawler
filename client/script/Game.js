@@ -185,6 +185,7 @@ function startGame(data_obj){
     game.camera.follow(p);
 
     finder = new PF.AStarFinder(
+    {allowDiagonal: true}
     );
     masterGrid = new PF.Grid(width,height);
 
