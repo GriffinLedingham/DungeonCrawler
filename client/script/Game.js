@@ -42,7 +42,7 @@ var beacon;
 var map_data = {};
 
 function create() {
-    socket = io.connect('http://localhost:3000');
+    socket = io.connect('http://dungeoncrawler.herokuapp.com');
     uuid = guid();
     socket.emit('new_player', {uuid:uuid});
 
@@ -56,12 +56,11 @@ function create() {
         $('#messages').append('<div style="color:white;">'+uid + ': ' + msg+'</div>');
     });
 
-    $('#chat_in').keyup(function(e){
-      if (e.which != 13) {
-           return;
-      }
-      e.preventDefault();
-      socket.emit('chat_msg', $('#chat_in').val());
+    $('#chat_in').keypress(function(event){
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if(keycode == '13'){
+            socket.emit('chat_msg', $('#chat_in').val());
+        }
     });
 
     socket.on('player_join',function(player_data){
