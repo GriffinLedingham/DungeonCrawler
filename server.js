@@ -9,7 +9,7 @@ app.configure(function(){
 });
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
-server.listen(process.env.PORT);
+server.listen(3000);
 io.set('log level', 0);
 
 var players = [];
@@ -27,6 +27,10 @@ io.sockets.on('connection', function (socket) {
     console.log('joined');
     socket.uuid = null;
     socket.playerType = null;
+
+    socket.on('chat_msg',function(msg){
+      io.sockets.emit('chat_msg', {msg:msg, uuid:socket.uuid});
+    });
 
     socket.on('new_player',function(player_data){
       if(typeCount % 2 === 0)
