@@ -13,7 +13,12 @@ server.listen(process.env.PORT);
 // server.listen(3000);
 io.set('log level', 0);
 
+var testMob = require('./mob/testMob');
+
 var players = [];
+
+// Collection of mobs in the game.
+var mobs = [];
 
 var typeCount = 2;
 var map_size = 50;
@@ -23,6 +28,11 @@ var map = Dungeon.getMap();
 var rooms = Dungeon.getRooms();
 var stats = Dungeon.getStats();
 Dungeon.print();
+
+for (var i = 0; i < 10; i++)
+{
+  mobs.push(new testMob.newMob(32 + i * 8, 32 + i * 8));
+}
 
 io.sockets.on('connection', function (socket) {
     socket.uuid = null;
@@ -58,7 +68,7 @@ io.sockets.on('connection', function (socket) {
 
       players.push({uuid:player_data.uuid, type:socket.playerType});
 
-      socket.emit('join_game', {size: map_size,map:map, rooms:rooms, stats:stats, player_type: socket.playerType});
+      socket.emit('join_game', {size: map_size,map:map, rooms:rooms, stats:stats, player_type: socket.playerType, inGameMobs:mobs});
 
       socket.emit('sync_players',players);
 
