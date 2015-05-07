@@ -9,8 +9,8 @@ app.configure(function(){
 });
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
-server.listen(process.env.PORT);
-// server.listen(3000);
+// server.listen(process.env.PORT);
+server.listen(3000);
 io.set('log level', 0);
 
 var testMob = require('./mob/testMob');
@@ -33,6 +33,36 @@ for (var i = 0; i < 10; i++)
 {
   mobs.push(new testMob.newMob(32 + i * 8, 32 + i * 8));
 }
+
+// Update the mobs every 100 milliseconds and broadcast their locations
+var updateMobs = function()
+{
+  for (var i = 0; i < mobs.length; i++)
+  {
+    var currentMob = mobs[i];
+
+    switch (currentMob.facing)
+    {
+    case 'south':
+      currentMob.y++;
+      break;
+    case 'north':
+      currentMob.y--;
+      break;
+    case 'east':
+      currentMob.x++;
+      break;
+    case 'west':
+      currentMob.x--;
+      break;
+    }
+  }
+
+  io.sockets.emit('mob_positions', {mobs : mobs} );
+
+  setTimeout(updateMobs, 100);
+}
+updateMobs();
 
 io.sockets.on('connection', function (socket) {
     socket.uuid = null;

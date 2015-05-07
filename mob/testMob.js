@@ -1,7 +1,7 @@
 var TestMob = function(x, y)
-{  
+{
   this.directions = ['north', 'south', 'east', 'west'];
-  this.facing = 'south';
+  this.facing = this.directions[~~(Math.random() * this.directions.length)];
 
   this.x = x;
   this.y = y;

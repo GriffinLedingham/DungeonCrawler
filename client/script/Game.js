@@ -39,9 +39,12 @@ var beacon;
 
 var map_data = {};
 
+// Represents the entire set of mob data ingame
+var mobs = [];
+
 function create() {
-    // socket = io.connect('http://localhost:3000');
-    socket = io.connect('http://dungeoncrawler.herokuapp.com');
+    socket = io.connect('http://localhost:3000');
+    // socket = io.connect('http://dungeoncrawler.herokuapp.com');
     uuid = guid();
     socket.emit('new_player', {uuid:uuid});
 
@@ -96,6 +99,15 @@ function create() {
         }
     });
 
+    socket.on('mob_positions', function(data)
+    {
+      for (var i = 0; i < data.mobs.length; i++)
+      {
+        mobs[i].x = data.mobs[i].x;
+        mobs[i].y = data.mobs[i].y;
+      }
+    });
+
     socket.on('disconnected',function(id){
         players[id].destroy();
     });
@@ -134,6 +146,11 @@ function startGame(data_obj){
             tileLibrary.walltop,tileLibrary.walltop_e,tileLibrary.walltop_w, tileLibrary.walltop_cntr]);
 
     map_data = {map:data_obj.map, rooms:data_obj.rooms, stats: data_obj.stats};
+
+    for (var i = 0; i < data_obj.inGameMobs.length; i++)
+    {
+      mobs.push(game.add.sprite(data_obj.inGameMobs[i].y, data_obj.inGameMobs[i].y, 'player'));
+    }
 
     tileSpriteMap = tileMapTranslate(map_data.map);
     for (var i=0; i<data_obj.size; i++) {
