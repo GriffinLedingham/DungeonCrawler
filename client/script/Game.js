@@ -8,6 +8,7 @@ function preload() {
     game.load.image('player', 'assets/player.png');
     game.load.image('wolf', 'assets/wolf.png');
     game.load.image('beacon', 'assets/beacon.png');
+    game.load.spritesheet('moogle', 'assets/moogle.png', 16, 22);
 }
 
 var tileLength = 32;
@@ -105,6 +106,22 @@ function create() {
       {
         mobs[i].x = data.mobs[i].x;
         mobs[i].y = data.mobs[i].y;
+
+        switch (data.mobs[i].facing)
+        {
+        case 'south':
+          mobs[i].animations.play('walkSouth');
+          break;
+        case 'north':
+          mobs[i].animations.play('walkNorth');
+          break;
+        case 'east':
+          mobs[i].animations.play('walkEast');
+          break;
+        case 'west':
+          mobs[i].animations.play('walkWest');
+          break;
+        }
       }
     });
 
@@ -149,7 +166,14 @@ function startGame(data_obj){
 
     for (var i = 0; i < data_obj.inGameMobs.length; i++)
     {
-      mobs.push(game.add.sprite(data_obj.inGameMobs[i].y, data_obj.inGameMobs[i].y, 'player'));
+      var newMob = game.add.sprite(data_obj.inGameMobs[i].y, data_obj.inGameMobs[i].y, 'moogle');
+
+      newMob.animations.add('walkNorth', [0, 1, 2, 1], 6, true);
+      newMob.animations.add('walkEast', [3, 4, 5, 4], 6, true);
+      newMob.animations.add('walkSouth', [6, 7, 8, 7], 6, true);
+      newMob.animations.add('walkWest', [9, 10, 11, 10], 6, true);
+
+      mobs.push(newMob);
     }
 
     tileSpriteMap = tileMapTranslate(map_data.map);

@@ -29,10 +29,11 @@ var rooms = Dungeon.getRooms();
 var stats = Dungeon.getStats();
 Dungeon.print();
 
-for (var i = 0; i < 10; i++)
+// Spawn one mob for each room.
+Dungeon.getRooms().forEach(function (room)
 {
-  mobs.push(new testMob.newMob(32 + i * 8, 32 + i * 8));
-}
+  mobs.push(new testMob.newMob(room.x + room.w / 2, room.y + room.h / 2, Dungeon));
+});
 
 // Update the mobs every 100 milliseconds and broadcast their locations
 var updateMobs = function()

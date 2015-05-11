@@ -1,10 +1,15 @@
-var TestMob = function(x, y)
+var TileSize = 32;
+
+var TestMob = function(x, y, room, dungeon)
 {
+  this.room = room;
+  this.dungeon = dungeon;
+
   this.directions = ['north', 'south', 'east', 'west'];
   this.facing = this.directions[~~(Math.random() * this.directions.length)];
 
-  this.x = x;
-  this.y = y;
+  this.x = x * TileSize;
+  this.y = y * TileSize;
 };
 
 TestMob.prototype.update = function(delta)
@@ -26,7 +31,7 @@ TestMob.prototype.update = function(delta)
   }
 };
 
-exports.newMob = function(x, y)
+exports.newMob = function(x, y, room, dungeon)
 {
-  return new TestMob(x, y);
+  return new TestMob(x, y, dungeon);
 };
