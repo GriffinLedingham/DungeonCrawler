@@ -1,7 +1,7 @@
 winW = window.innerWidth;
 winH = window.innerHeight;
 
-var game = new Phaser.Game(winW, winH, Phaser.AUTO, 'sheep-tag', { preload: preload, create: create, update: update, render:render });
+var game = new Phaser.Game(winW, winH, Phaser.AUTO, 'sheep-tag', { preload: preload, create: create, update: update, render:render }, false, false);
 
 function preload() {
     game.load.image('tiles', 'assets/tiles_4_betterGrass.png');
@@ -167,6 +167,8 @@ function startGame(data_obj){
     for (var i = 0; i < data_obj.inGameMobs.length; i++)
     {
       var newMob = game.add.sprite(data_obj.inGameMobs[i].y, data_obj.inGameMobs[i].y, 'moogle');
+      newMob.scale.x = 2;
+      newMob.scale.y = 2;
 
       newMob.animations.add('walkNorth', [0, 1, 2, 1], 6, true);
       newMob.animations.add('walkEast', [3, 4, 5, 4], 6, true);
