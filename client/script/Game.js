@@ -1,13 +1,14 @@
 winW = window.innerWidth;
 winH = window.innerHeight;
 
-var game = new Phaser.Game(winW, winH, Phaser.AUTO, 'sheep-tag', { preload: preload, create: create, update: update, render:render });
+var game = new Phaser.Game(winW, winH, Phaser.AUTO, 'sheep-tag', { preload: preload, create: create, update: update, render:render }, false, false);
 
 function preload() {
     game.load.image('tiles', 'assets/tiles_4_betterGrass.png');
     game.load.image('player', 'assets/player.png');
     game.load.image('wolf', 'assets/wolf.png');
     game.load.image('beacon', 'assets/beacon.png');
+    game.load.spritesheet('moogle', 'assets/moogle.png', 16, 22);
 }
 
 var tileLength = 32;
@@ -38,6 +39,9 @@ var tileSpriteMap = [];
 var beacon;
 
 var map_data = {};
+
+// Represents the entire set of mob data ingame
+var mobs = [];
 
 function create() {
     // socket = io.connect('http://localhost:3000');
@@ -96,6 +100,31 @@ function create() {
         }
     });
 
+    socket.on('mob_positions', function(data)
+    {
+      for (var i = 0; i < data.mobs.length; i++)
+      {
+        mobs[i].x = data.mobs[i].x;
+        mobs[i].y = data.mobs[i].y;
+
+        switch (data.mobs[i].facing)
+        {
+        case 'south':
+          mobs[i].animations.play('walkSouth');
+          break;
+        case 'north':
+          mobs[i].animations.play('walkNorth');
+          break;
+        case 'east':
+          mobs[i].animations.play('walkEast');
+          break;
+        case 'west':
+          mobs[i].animations.play('walkWest');
+          break;
+        }
+      }
+    });
+
     socket.on('disconnected',function(id){
         players[id].destroy();
     });
@@ -134,6 +163,20 @@ function startGame(data_obj){
             tileLibrary.walltop,tileLibrary.walltop_e,tileLibrary.walltop_w, tileLibrary.walltop_cntr]);
 
     map_data = {map:data_obj.map, rooms:data_obj.rooms, stats: data_obj.stats};
+
+    for (var i = 0; i < data_obj.inGameMobs.length; i++)
+    {
+      var newMob = game.add.sprite(data_obj.inGameMobs[i].y, data_obj.inGameMobs[i].y, 'moogle');
+      newMob.scale.x = 2;
+      newMob.scale.y = 2;
+
+      newMob.animations.add('walkNorth', [0, 1, 2, 1], 6, true);
+      newMob.animations.add('walkEast', [3, 4, 5, 4], 6, true);
+      newMob.animations.add('walkSouth', [6, 7, 8, 7], 6, true);
+      newMob.animations.add('walkWest', [9, 10, 11, 10], 6, true);
+
+      mobs.push(newMob);
+    }
 
     tileSpriteMap = tileMapTranslate(map_data.map);
     for (var i=0; i<data_obj.size; i++) {

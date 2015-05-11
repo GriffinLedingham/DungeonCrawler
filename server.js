@@ -13,7 +13,12 @@ server.listen(process.env.PORT);
 // server.listen(3000);
 io.set('log level', 0);
 
+var testMob = require('./mob/testMob');
+
 var players = [];
+
+// Collection of mobs in the game.
+var mobs = [];
 
 var typeCount = 2;
 var map_size = 50;
@@ -23,6 +28,23 @@ var map = Dungeon.getMap();
 var rooms = Dungeon.getRooms();
 var stats = Dungeon.getStats();
 Dungeon.print();
+
+// Spawn one mob for each room.
+Dungeon.getRooms().forEach(function (room)
+{
+  mobs.push(new testMob.newMob(room.x + room.w / 2, room.y + room.h / 2, room, Dungeon));
+});
+
+// Update the mobs every 100 milliseconds and broadcast their locations
+var updateMobs = function()
+{
+  mobs.forEach(function(mob) { mob.update(100); })
+
+  io.sockets.emit('mob_positions', {mobs : mobs} );
+
+  setTimeout(updateMobs, 100);
+}
+updateMobs();
 
 io.sockets.on('connection', function (socket) {
     socket.uuid = null;
@@ -58,7 +80,7 @@ io.sockets.on('connection', function (socket) {
 
       players.push({uuid:player_data.uuid, type:socket.playerType});
 
-      socket.emit('join_game', {size: map_size,map:map, rooms:rooms, stats:stats, player_type: socket.playerType});
+      socket.emit('join_game', {size: map_size,map:map, rooms:rooms, stats:stats, player_type: socket.playerType, inGameMobs:mobs});
 
       socket.emit('sync_players',players);
 
