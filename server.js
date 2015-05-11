@@ -37,26 +37,7 @@ for (var i = 0; i < 10; i++)
 // Update the mobs every 100 milliseconds and broadcast their locations
 var updateMobs = function()
 {
-  for (var i = 0; i < mobs.length; i++)
-  {
-    var currentMob = mobs[i];
-
-    switch (currentMob.facing)
-    {
-    case 'south':
-      currentMob.y++;
-      break;
-    case 'north':
-      currentMob.y--;
-      break;
-    case 'east':
-      currentMob.x++;
-      break;
-    case 'west':
-      currentMob.x--;
-      break;
-    }
-  }
+  mobs.forEach(function(mob) { mob.update(100); })
 
   io.sockets.emit('mob_positions', {mobs : mobs} );
 

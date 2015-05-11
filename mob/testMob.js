@@ -7,6 +7,25 @@ var TestMob = function(x, y)
   this.y = y;
 };
 
+TestMob.prototype.update = function(delta)
+{
+  switch (this.facing)
+  {
+    case 'south':
+      this.y++;
+      break;
+    case 'north':
+      this.y--;
+      break;
+    case 'east':
+      this.x++;
+      break;
+    case 'west':
+      this.x--;
+      break;
+  }
+};
+
 exports.newMob = function(x, y)
 {
   return new TestMob(x, y);
