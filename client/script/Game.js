@@ -8,7 +8,7 @@ function preload() {
     game.load.image('player', 'assets/player.png');
     game.load.image('wolf', 'assets/wolf.png');
     game.load.image('beacon', 'assets/beacon.png');
-    game.load.spritesheet('moogle', 'assets/moogle.png', 16, 22);
+    game.load.spritesheet('moogle', 'assets/moogle.png', 64, 88);
 }
 
 var tileLength = 128;
@@ -169,7 +169,7 @@ function startGame(data_obj){
 
     for (var i = 0; i < data_obj.inGameMobs.length; i++)
     {
-      var newMob = game.add.sprite(data_obj.inGameMobs[i].y, data_obj.inGameMobs[i].y, 'moogle');
+      var newMob = game.add.sprite(data_obj.inGameMobs[i].x, data_obj.inGameMobs[i].y, 'moogle');
       newMob.scale.x = 2;
       newMob.scale.y = 2;
 

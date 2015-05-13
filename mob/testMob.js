@@ -1,4 +1,4 @@
-var TileSize = 32;
+var TileSize = 128;
 
 var TestMob = function(x, y, room, dungeon)
 {
@@ -17,35 +17,35 @@ TestMob.prototype.update = function(delta)
   switch (this.facing)
   {
     case 'south':
-      this.y++;
+      this.y+=20;
       break;
     case 'north':
-      this.y--;
+      this.y-=20;
       break;
     case 'east':
-      this.x++;
+      this.x+=20;
       break;
     case 'west':
-      this.x--;
+      this.x-=20;
       break;
   }
 
   // If a mob bumps into a wall, change it's direction to a random new one
-  if (this.dungeon.getMap()[~~((this.x + (this.facing == 'east' ? 32 : this.facing == 'west' ? 0 : 16)) / TileSize)][~~((this.y + (this.facing == 'south' ? 44 : this.facing == 'north' ? 0 : 22)) / TileSize)] == 0)
+  if (this.dungeon.getMap()[~~((this.x + (this.facing == 'east' ? 128 : this.facing == 'west' ? 0 : 64)) / TileSize)][~~((this.y + (this.facing == 'south' ? 176 : this.facing == 'north' ? 0 : 44)) / TileSize)] == 0)
   {
     switch (this.facing)
     {
       case 'south':
-        this.y--;
+        this.y-=20;
         break;
       case 'north':
-        this.y++;
+        this.y+=20;
         break;
       case 'east':
-        this.x--;
+        this.x-=20;
         break;
       case 'west':
-        this.x++;
+        this.x+=20;
         break;
     }
 
