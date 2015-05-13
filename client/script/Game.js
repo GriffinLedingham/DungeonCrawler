@@ -46,8 +46,8 @@ var map_data = {};
 var mobs = [];
 
 function create() {
-    socket = io.connect('http://localhost:3000');
-    // socket = io.connect('http://dungeoncrawler.herokuapp.com');
+    // socket = io.connect('http://localhost:3000');
+    socket = io.connect('http://dungeoncrawler.herokuapp.com');
     uuid = guid();
     socket.emit('new_player', {uuid:uuid});
 
