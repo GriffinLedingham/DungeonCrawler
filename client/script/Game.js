@@ -11,7 +11,7 @@ function preload() {
     game.load.spritesheet('moogle', 'assets/moogle.png', 16, 22);
 }
 
-var tileLength = 32;
+var tileLength = 128;
 var map;
 var line;
 var layer;
@@ -35,6 +35,8 @@ var playerType;
 var authed = false;
 var trapped = false;
 var tileSpriteMap = [];
+var spriteGroup;
+var gameScale = 1;
 
 var beacon;
 
@@ -44,8 +46,8 @@ var map_data = {};
 var mobs = [];
 
 function create() {
-    // socket = io.connect('http://localhost:3000');
-    socket = io.connect('http://dungeoncrawler.herokuapp.com');
+    socket = io.connect('http://localhost:3000');
+    // socket = io.connect('http://dungeoncrawler.herokuapp.com');
     uuid = guid();
     socket.emit('new_player', {uuid:uuid});
 
@@ -70,7 +72,7 @@ function create() {
     });
 
     socket.on('player_join',function(player_data){
-        players[player_data.uuid] = game.add.sprite(23,32, 'player');
+        players[player_data.uuid] = game.add.sprite(92,128, 'player');
         players[player_data.uuid].playerType = player_data.type;
         game.physics.enable(players[player_data.uuid],  Phaser.Physics.ARCADE);
         players[player_data.uuid].anchor.setTo(0.5, 1);
@@ -91,7 +93,7 @@ function create() {
         {
             if(list[i].uuid !== uuid)
             {
-                players[list[i].uuid] = game.add.sprite(23,32, 'player');
+                players[list[i].uuid] = game.add.sprite(92,128, 'player');
                 players[list[i].uuid].playerType = list[i].type;
                 game.physics.enable(players[list[i].uuid],  Phaser.Physics.ARCADE);
                 players[list[i].uuid].anchor.setTo(0.5, 1);
@@ -152,9 +154,10 @@ function startGame(data_obj){
     line = new Phaser.Line();
 
     map = game.add.tilemap();
-    map.addTilesetImage('tiles');
 
-    layer = map.create('layer',data_obj.size,data_obj.size,32,32);
+    map.addTilesetImage('tiles', 'tiles', 128,128);
+
+    layer = map.create('layer',data_obj.size,data_obj.size, (tileLength) , (tileLength) );
     layer.resizeWorld();
 
     map.setCollision([
@@ -190,7 +193,7 @@ function startGame(data_obj){
     game.physics.startSystem(Phaser.Physics.ARCADE);
     playerType = type;
 
-    p = game.add.sprite(map_data.rooms[0].center.x*32, map_data.rooms[0].center.y*32, 'player');
+    p = game.add.sprite(map_data.rooms[0].center.x*(tileLength), map_data.rooms[0].center.y*(tileLength), 'player');
 
     game.physics.enable(p, Phaser.Physics.ARCADE);
     p.body.collideWorldBounds = true;
@@ -246,8 +249,8 @@ function update() {
 
     if(moveArray.length !== 0)
     {
-        if(p.world.x > (moveArray[moveIndex][0]*tileLength) && p.world.x < (moveArray[moveIndex][0]*tileLength)+(tileLength) &&
-                p.world.y > (moveArray[moveIndex][1]*tileLength) && p.world.y < (moveArray[moveIndex][1]*tileLength)+(tileLength))
+        if(p.world.x > (moveArray[moveIndex][0]* (tileLength) ) && p.world.x < (moveArray[moveIndex][0]* (tileLength) )+( (tileLength) ) &&
+                p.world.y > (moveArray[moveIndex][1]* (tileLength) ) && p.world.y < (moveArray[moveIndex][1]* (tileLength) )+( (tileLength) ))
         {
             moveIndex++;
             if(moveIndex === moveArray.length)
@@ -274,8 +277,8 @@ function movePlayer()
         player.y = p.world.y;
 
         var path_point = {};
-        path_point.x = moveArray[moveIndex][0]*tileLength + tileLength/2;
-        path_point.y = moveArray[moveIndex][1]*tileLength + tileLength/2;
+        path_point.x = moveArray[moveIndex][0]* (tileLength) +  (tileLength)/2;
+        path_point.y = moveArray[moveIndex][1]* (tileLength) +  (tileLength)/2;
 
         //Get Direction
         var dir = {};
@@ -309,6 +312,7 @@ function clickTile(pointer) {
         }
         layer.dirty = true;
     }
+    console.log(pointer);
     line.start.set(pointer.worldX, pointer.worldY);
     plotting = true;
     console.log(raycast(pointer));
@@ -322,7 +326,7 @@ function raycast(pointer) {
         //  Just so we can visually see the tiles
         for (var i = 0; i < tileHits.length; i++)
         {
-            //tileHits[i].debug = true;
+            // tileHits[i].debug = true;
         }
         layer.dirty = true;
     }
@@ -336,7 +340,7 @@ function raycast(pointer) {
 
     var grid = this.masterGrid.clone();
 
-    var path = finder.findPath(Math.floor(p.world.x/32),Math.floor(p.world.y/32), tileHits[0].x,tileHits[0].y, grid);
+    var path = finder.findPath(Math.floor(p.world.x/(tileLength)),Math.floor(p.world.y/(tileLength)), tileHits[0].x,tileHits[0].y, grid);
 
     if(masterGrid.nodes[tileHits[0].y][tileHits[0].x].walkable === true)
     {

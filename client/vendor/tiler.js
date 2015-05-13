@@ -58,6 +58,8 @@ var tileMapTranslate = function (map) {
     }
   }
 
+  console.log(spriteMap);
+
   // Go through every map coordinate - First Pass
   // The dungeon only has relevant data between (1,1) & (mapSize-2, mapSize-2)
   // check dungeon.js

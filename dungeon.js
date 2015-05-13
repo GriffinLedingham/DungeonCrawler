@@ -7,7 +7,7 @@ module.exports = {
     stack: [],
     gid: 1,
     minRoomSize: 5,
-    minSizeFactor: 0.3,
+    minSizeFactor: 0.4,
 
     clear: function() {
         this.map_size = null;
